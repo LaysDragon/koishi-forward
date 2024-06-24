@@ -6,6 +6,9 @@ interface Source {
     platform: string
     blockingWords: string[]
     selfId: string
+
+    onebot_expendapi_endpoint?: string;
+    onebot_expendapi_token?: string;
 }
 interface Target {
     selfId: string
@@ -37,37 +40,59 @@ export interface Config {
     delay: Record<string, number>
 }
 
-const share = {
-    platform: Schema.string().required(),
-    channelId: Schema.string().required()
-}
 
-const sourceConst: Schema<SourceConst> = Schema.object({
-    type: Schema.const('source').required(),
-    name: Schema.string(),
-    ...share,
-    selfId: Schema.string().default('*'),
-    blockingWords: Schema.array(String).role('table').default([])
-})
+const share =
+    Schema.intersect([
+        Schema.object({
+            platform: Schema.string().required(),
+            channelId: Schema.string().required()
+        }),
+        Schema.union([
+            Schema.object({
+                platform: Schema.const('onebot').required(),
+                onebot_expendapi_endpoint: Schema.string(),
+                onebot_expendapi_token: Schema.string().role('secret'),
+            }),
+            Schema.object({
+                onebot_expendapi_endpoint: Schema.string().hidden(true),
+                onebot_expendapi_token: Schema.string().hidden(true),
+            }),
+        ]),
+    ])
 
-const targetConst: Schema<TargetConst> = Schema.object({
-    type: Schema.const('target').required(),
-    ...share,
-    selfId: Schema.string().required(),
-    simulateOriginal: Schema.boolean().default(false),
-    disabled: Schema.boolean().default(false)
-})
+const sourceConst: Schema<SourceConst> = Schema.intersect([
+    Schema.object({
+        type: Schema.const('source').required(),
+        name: Schema.string(),
+        // ...share,
+        selfId: Schema.string().default('*'),
+        blockingWords: Schema.array(String).role('table').default([])
+    }),
+    share,
+]);
 
-const fullConst: Schema<FullConst> = Schema.object({
-    type: Schema.const('full').required(),
-    name: Schema.string(),
-    ...share,
-    selfId: Schema.string().required(),
-    blockingWords: Schema.array(String).role('table').default([]),
-    simulateOriginal: Schema.boolean().default(false),
-    disabled: Schema.boolean().default(false)
-})
-
+const targetConst: Schema<TargetConst> = Schema.intersect([
+    Schema.object({
+        type: Schema.const('target').required(),
+        // ...share,
+        selfId: Schema.string().required(),
+        simulateOriginal: Schema.boolean().default(false),
+        disabled: Schema.boolean().default(false)
+    }),
+    share
+]);
+const fullConst: Schema<FullConst> = Schema.intersect([
+    Schema.object({
+        type: Schema.const('full').required(),
+        name: Schema.string(),
+        // ...share,
+        selfId: Schema.string().required(),
+        blockingWords: Schema.array(String).role('table').default([]),
+        simulateOriginal: Schema.boolean().default(false),
+        disabled: Schema.boolean().default(false)
+    }),
+    share
+]);
 export const Config: Schema<Config> = Schema.intersect([
     Schema.object({
         constants: Schema.dict(Schema.intersect([

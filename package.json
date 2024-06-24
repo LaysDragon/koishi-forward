@@ -1,5 +1,5 @@
 {
-  "name": "@myrtus/koishi-plugin-forward",
+  "name": "@laysdragon/koishi-plugin-forward",
   "description": "Forward messages",
   "version": "4.0.1",
   "main": "lib/index.js",
@@ -19,11 +19,14 @@
     "transfer"
   ],
   "peerDependencies": {
-    "koishi": "^4.16.4"
+    "koishi": "^4.17.9"
+  },
+  "devDependencies": {
+    "@koishijs/plugin-adapter-discord": "^4.5.6"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bot-myrtus/forward.git"
+    "url": "https://github.com/LaysDragon/koishi-forward.git"
   },
   "author": {
     "email": "idanran@outlook.com",
@@ -36,5 +39,8 @@
       "en": "Forward messages"
     },
     "browser": true
+  },
+  "dependencies": {
+    "mime": "^4.0.3"
   }
 }

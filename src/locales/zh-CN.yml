@@ -17,6 +17,8 @@
             platform: 平台名
             channelId: 频道 ID
             selfId: 自身 ID
+            onebot_expendapi_endpoint: Onebot 拓展 API 端點
+            onebot_expendapi_token: Onebot 拓展 API access_token
           - selfId: 自身 ID
             disabled: 是否禁用
             platform: 平台名
@@ -30,6 +32,8 @@
             platform: 平台名
             channelId: 频道 ID
             simulateOriginal: 模拟原始作者 (仅在 discord 平台生效, 仅在「目标」生效)
+            onebot_expendapi_endpoint: Onebot 拓展 API 端點
+            onebot_expendapi_token: Onebot 拓展 API access_token
 - $description: 转发规则设置
   rules:
     $description: 对应规则

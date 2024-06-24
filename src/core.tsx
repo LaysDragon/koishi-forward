@@ -1,6 +1,7 @@
-import { Context, h, sleep, Keys, Universal, isNullable } from 'koishi'
+import { Context, h, sleep, Keys, Universal, isNullable, Session } from 'koishi'
 import { MessageParse } from './parse'
 import { RuleSource, RuleTarget, Config } from './config'
+import { icons } from './icons'
 
 declare module 'koishi' {
     interface Tables {
@@ -18,6 +19,10 @@ interface Sent {
     time: Date
     id?: number
 }
+
+// function isQQ(session: Session) {
+//     return session.event.user?.avatar?.startsWith('http://q.qlogo.cn');
+// }
 
 export function apply(ctx: Context, config: Config) {
     ctx.model.extend('myrtus_forward_sent', {
@@ -88,7 +93,13 @@ export function apply(ctx: Context, config: Config) {
                 logger.debug(rows)
             }
 
-            const filtered: h[] = new MessageParse(event.message.elements).face().record().at().output()
+            // qq one bot 有重複事件
+            if (session.platform === 'onebot' && session.subsubtype === 'guild-file-added') {
+                return;
+            }
+
+            const filtered: h[] = await new MessageParse(event.message.elements, listened, session, sConfig).recordAsText().output()
+
 
             const sent: Sent[] = []
             for (let index = 0; index < targetConfigs.length; index++) {
@@ -96,22 +107,24 @@ export function apply(ctx: Context, config: Config) {
                 const targetSid = `${target.platform}:${target.selfId}`
                 const bot = ctx.bots[targetSid]
 
-                const name = event.member?.nick || event.user.nick || event.user.name
+                const name = session.event?.member?.nick || session.event.user.nick || session.author.name;
+                const icon = icons[session.platform];
+
                 let prefix: h
+
                 if (target.simulateOriginal && target.platform === 'discord') {
                     let avatar = event.user.avatar
                     if (event.platform === 'telegram') {
                         avatar = 'https://discord.com/assets/5d6a5e9d7d77ac29116e.png'
                     }
-                    prefix = h('author', {
-                        name: `[${sConfig.name}] ${name}`,
-                        avatar
-                    })
+                    prefix = <author
+                        name={`${icon}${name}`}
+                        avatar={avatar}
+                    />
                 } else {
-                    const altName = isNullable(sConfig.name) ? '' : `${sConfig.name} - `
-                    prefix = h.text(`[${altName}${name}]\n`)
+                    prefix = <>{icon} <b>{`${name}`}</b>:<br /></>
                 }
-                const payload: h[] = [prefix, ...filtered]
+                let payload: h = <message>{prefix}{...filtered}</message>
 
                 if (!bot) {
                     logger.warn(`暂时找不到机器人实例 %c, 等待一会儿说不定就有了呢!`, targetSid)
@@ -143,17 +156,18 @@ export function apply(ctx: Context, config: Config) {
                         }
                     }
                     if (quoteId) {
-                        if (payload[0].type === 'author') {
-                            payload.splice(1, 0, h.quote(quoteId))
+                        if (payload.children[0].type === 'author') {
+                            // payload = <><message id="{quoteId}" forward />{payload}</>
+                            payload.children.splice(1, 0, h.quote(quoteId))
                         } else {
-                            payload.unshift(h.quote(quoteId))
+                            payload.children.unshift(h.quote(quoteId))
                         }
                         logger.debug(`msgId: ${quoteId}`)
                         logger.debug(`added`)
                     } else {
                         const { user, elements } = event.message.quote
                         const re: h[] = [h.text(`Re ${user.nick || user.name} ⌈`), ...(elements || []), h.text('⌋\n')]
-                        payload.unshift(...new MessageParse(re).face().record().at().output())
+                        payload.children.unshift(...await new MessageParse(re, listened, session, sConfig).faceAsText().recordAsText().output())
                         logger.debug('not added')
                     }
                     logger.debug(`to sid: ${targetSid}`)
