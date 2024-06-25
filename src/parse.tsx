@@ -41,7 +41,7 @@ export class MessageParse {
                 switch (session.platform) {
                     case 'discord':
                         return attrs.animated
-                            ? <img src={`https://cdn.discordapp.com/emojis/${attrs.id}.webp?quality=lossless&size=64`} />
+                            ? <img src={`https://cdn.discordapp.com/emojis/${attrs.id}?quality=lossless&size=64`} />
                             : <img src={`https://cdn.discordapp.com/emojis/${attrs.id}?size=64`} />;
                     default:
                         return <face {...attrs}>{...children}</face>;
@@ -53,7 +53,7 @@ export class MessageParse {
             },
             // from discord
             sticker(attrs, children, session) {
-                return <img src={`https://cdn.discordapp.com/stickers/${attrs.id}?size=64`} title={attrs.name} />
+                return <img src={`https://cdn.discordapp.com/stickers/${attrs.id}?size=160`} title={attrs.name} />
             },
             async file(attrs, children, session) {
                 switch (session.platform) {
