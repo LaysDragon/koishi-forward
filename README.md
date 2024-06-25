@@ -1,4 +1,5 @@
-# myrtus/forward
+# laysdragon/forward
+modify from myrtus/forward
 
 [![npm](https://img.shields.io/npm/v/@myrtus/koishi-plugin-forward?style=flat-square)](https://www.npmjs.com/package/@myrtus/koishi-plugin-forward)
 [![CodeFactor](https://www.codefactor.io/repository/github/bot-myrtus/forward/badge)](https://www.codefactor.io/repository/github/bot-myrtus/forward)

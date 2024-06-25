@@ -19,10 +19,12 @@
     "transfer"
   ],
   "peerDependencies": {
+    "@satorijs/element": "workspace:^",
     "koishi": "^4.17.9"
   },
   "devDependencies": {
-    "@koishijs/plugin-adapter-discord": "^4.5.6"
+    "@koishijs/plugin-adapter-discord": "^4.5.6",
+    "@types/mime": "3.0.0"
   },
   "repository": {
     "type": "git",
@@ -41,6 +43,6 @@
     "browser": true
   },
   "dependencies": {
-    "mime": "^4.0.3"
+    "mime": "3.0.0"
   }
 }
